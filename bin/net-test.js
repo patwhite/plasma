@@ -2,7 +2,8 @@
 
 var bcoin = require('bcoin');
 var utils = bcoin.utils;
-var crypto = bcoin.crypto;
+// var crypto = bcoin.crypto;
+const crypto = require('crypto');
 var assert = utils.assert;
 var wire = require('../lib/wire');
 var Peer = require('../lib/peer');

@@ -6,7 +6,7 @@
   "bin": {},
   "preferGlobal": false,
   "scripts": {
-    "test": "mocha --reporter spec test/*-test.js",
+    "test": "mocha --inspect-brk --nolazy spec test/*-test.js",
     "browserify": "browserify --im -o plasma.js lib/plasma.js",
     "uglify": "uglifyjs -m -o plasma.min.js plasma.js",
     "clean": "rm plasma.js plasma.min.js"
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/bcoin-org/plasma",
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 0.11.0"
   },
   "dependencies": {
     "bcoin": "git://github.com/bcoin-org/bcoin.git#master"

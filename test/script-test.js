@@ -1,14 +1,16 @@
 'use strict';
 
 var bcoin = require('bcoin');
-var constants = bcoin.constants;
+// var constants = bcoin.constants;
+var common = require('bcoin/lib/script/common');
 var utils = require('bcoin/lib/utils/util');
-var crypto = bcoin.crypto;
-var assert = require('assert');
+const encoding = require('bcoin/lib/utils/encoding');
+const crypto = require('crypto');
+const sha256 = require('bcoin/lib/crypto/sha256');
 var BufferWriter = require('bcoin/lib/utils/writer');
 var BufferReader = require('bcoin/lib/utils/reader');
-var opcodes = constants.opcodes;
-var hashType = constants.hashType;
+var opcodes = common.opcodes;
+var hashType = common.hashType;
 var elkrem = require('../lib/elkrem');
 var ElkremSender = elkrem.ElkremSender;
 var ElkremReceiver = elkrem.ElkremReceiver;
@@ -19,6 +21,7 @@ var wire = require('../lib/wire');
 var CommitRevocation = wire.CommitRevocation;
 var HTLCAddRequest = wire.HTLCAddRequest;
 var List = require('../lib/list');
+const secp256k1 = require('bcoin/lib/crypto/secp256k1');
 
 describe('Script', function() {
   // TestCommitmentSpendValidation test the spendability of both outputs within
@@ -35,17 +38,17 @@ describe('Script', function() {
 
     // Setup funding transaction output.
     var fundingOutput = new bcoin.coin();
-    fundingOutput.hash = constants.ONE_HASH.toString('hex');
+    fundingOutput.hash = encoding.ONE_HASH.toString('hex');
     fundingOutput.index = 50;
     fundingOutput.value = 1 * 1e8;
 
     // We also set up set some resources for the commitment transaction.
     // Each side currently has 1 BTC within the channel, with a total
     // channel capacity of 2BTC.
-    var alice = bcoin.ec.generatePrivateKey();
-    var alicePub = bcoin.ec.publicKeyCreate(alice, true);
-    var bob = bcoin.ec.generatePrivateKey();
-    var bobPub = bcoin.ec.publicKeyCreate(bob, true);
+    var alice = secp256k1.generatePrivateKey();
+    var alicePub = secp256k1.publicKeyCreate(alice, true);
+    var bob = secp256k1.generatePrivateKey();
+    var bobPub = secp256k1.publicKeyCreate(bob, true);
     var balance = 1 * 1e8;
     var csvTimeout = 5;
     var revImage = hdSeed;
@@ -104,20 +107,24 @@ describe('Script', function() {
     var hdSeed = crypto.randomBytes(32);
 
     var fundingOutput = new bcoin.coin();
-    fundingOutput.hash = constants.ONE_HASH.toString('hex');
+    fundingOutput.hash = encoding.ONE_HASH.toString('hex');
     fundingOutput.index = 50;
     fundingOutput.value = 1 * 1e8;
 
     var revImage = hdSeed;
-    var revHash = crypto.sha256(revImage);
-    var payImage = utils.copy(revHash);
-    payImage[0] ^= 1;
-    var payHash = crypto.sha256(payImage);
+    var revHash = sha256.digest(revImage);
+    var payImage = new Buffer(revHash.length);
+    revHash.copy(payImage, 0, 0, revHash.length);
+    // return clone;
 
-    var alice = bcoin.ec.generatePrivateKey();
-    var alicePub = bcoin.ec.publicKeyCreate(alice, true);
-    var bob = bcoin.ec.generatePrivateKey();
-    var bobPub = bcoin.ec.publicKeyCreate(bob, true);
+    // var payImage = utils.copy(revHash);
+    payImage[0] ^= 1;
+    var payHash = sha256.digest(payImage);
+
+    var alice = secp256k1.generatePrivateKey();
+    var alicePub = secp256k1.publicKeyCreate(alice, true);
+    var bob = secp256k1.generatePrivateKey();
+    var bobPub = secp256k1.publicKeyCreate(bob, true);
     var payValue = 1 * 10e8;
     var cltvTimeout = 8;
     var csvTimeout = 5;
@@ -183,20 +190,23 @@ describe('Script', function() {
     var hdSeed = crypto.randomBytes(32);
 
     var fundingOutput = new bcoin.coin();
-    fundingOutput.hash = constants.ONE_HASH.toString('hex');
+    fundingOutput.hash = encoding.ONE_HASH.toString('hex');
     fundingOutput.index = 50;
     fundingOutput.value = 1 * 1e8;
 
     var revImage = hdSeed;
-    var revHash = crypto.sha256(revImage);
-    var payImage = utils.copy(revHash);
-    payImage[0] ^= 1;
-    var payHash = crypto.sha256(payImage);
+    var revHash = sha256.digest(revImage);
+    var payImage = new Buffer(revHash.length);
+    revHash.copy(payImage, 0, 0, revHash.length);
 
-    var alice = bcoin.ec.generatePrivateKey();
-    var alicePub = bcoin.ec.publicKeyCreate(alice, true);
-    var bob = bcoin.ec.generatePrivateKey();
-    var bobPub = bcoin.ec.publicKeyCreate(bob, true);
+    // var payImage = utils.copy(revHash);
+    payImage[0] ^= 1;
+    var payHash = sha256.digest(payImage);
+
+    var alice = secp256k1.generatePrivateKey();
+    var alicePub = secp256k1.publicKeyCreate(alice, true);
+    var bob = secp256k1.generatePrivateKey();
+    var bobPub = secp256k1.publicKeyCreate(bob, true);
     var payValue = 1 * 10e8;
     var cltvTimeout = 8;
     var csvTimeout = 5;

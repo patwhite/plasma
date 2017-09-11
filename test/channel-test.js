@@ -2,13 +2,14 @@
 
 var bcoin = require('bcoin');
 var constants = bcoin.constants;
+var common = require('bcoin/lib/script/common');
 var utils = require('bcoin/lib/utils/util');
 var crypto = bcoin.crypto;
 var assert = require('assert');
 var BufferWriter = require('bcoin/lib/utils/writer');
 var BufferReader = require('bcoin/lib/utils/reader');
-var opcodes = constants.opcodes;
-var hashType = constants.hashType;
+var opcodes = common.opcodes;
+var hashType = common.hashType;
 var elkrem = require('../lib/elkrem');
 var ElkremSender = elkrem.ElkremSender;
 var ElkremReceiver = elkrem.ElkremReceiver;
@@ -19,6 +20,10 @@ var wire = require('../lib/wire');
 var CommitRevocation = wire.CommitRevocation;
 var HTLCAddRequest = wire.HTLCAddRequest;
 var List = require('../lib/list');
+// const elliptic = require('elliptic');
+// const secp256k1 = elliptic.ec('secp256k1');
+const secp256k1 = require('bcoin/lib/crypto/secp256k1');
+const encoding = require('bcoin/lib/utils/encoding');
 
 bcoin.cache();
 
@@ -31,9 +36,9 @@ function alloc(num) {
 function createChannels() {
   var hdSeed = alloc(1);
   var alice = alloc(2);
-  var alicePub = bcoin.ec.publicKeyCreate(alice, true);
+  var alicePub = secp256k1.publicKeyCreate(alice, true);
   var bob = alloc(3);
-  var bobPub = bcoin.ec.publicKeyCreate(bob, true);
+  var bobPub = secp256k1.publicKeyCreate(bob, true);
   var channelCapacity = 10 * 1e8;
   var channelBalance = channelCapacity / 2;
   var csvTimeoutAlice = 5;
@@ -42,7 +47,7 @@ function createChannels() {
   var redeem = util.fundingRedeem(alicePub, bobPub, channelCapacity);
 
   var fundingOutput = new bcoin.coin();
-  fundingOutput.hash = constants.ONE_HASH.toString('hex');
+  fundingOutput.hash = encoding.ONE_HASH.toString('hex');
   fundingOutput.index = 0;
   fundingOutput.value = 1 * 1e8;
   fundingOutput.script = redeem.output.script;
