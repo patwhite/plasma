@@ -20,8 +20,6 @@ var wire = require('../lib/wire');
 var CommitRevocation = wire.CommitRevocation;
 var HTLCAddRequest = wire.HTLCAddRequest;
 var List = require('../lib/list');
-// const elliptic = require('elliptic');
-// const secp256k1 = elliptic.ec('secp256k1');
 const secp256k1 = require('bcoin/lib/crypto/secp256k1');
 const encoding = require('bcoin/lib/utils/encoding');
 
@@ -47,6 +45,8 @@ function createChannels() {
   var redeem = util.fundingRedeem(alicePub, bobPub, channelCapacity);
 
   var fundingOutput = new bcoin.coin();
+  fundingOutput.prevout = new bcoin.outpoint();
+  fundingOutput.sequence = 0xffffffff;
   fundingOutput.hash = encoding.ONE_HASH.toString('hex');
   fundingOutput.index = 0;
   fundingOutput.value = 1 * 1e8;
